@@ -31,19 +31,31 @@ form {
 
 .mover {
   position: fixed;
-  width: 256px;
+  max-width: 100%;
   z-index: -1;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .randomPizzaContainer {
   float: left;
   display: flex;
+  height: 325px;
+  width:33.33%;
 }
 
 .randomPizzaContainer:after {
   content: "";
   display: table;
   clear:both;
+}
+
+.pizzaImage {
+  width:35%;
+}
+
+.pizzaIngre {
+  width:65%;
 }
 
  .container {
