@@ -23,6 +23,7 @@ var movingPizza = [];
 var scrollTop = 0;
 var gotFrame = 0;
 var movingItems = {};
+var phase = [];
 pizzaIngredients.meats = [
   "Pepperoni",
   "Sausage",
@@ -386,7 +387,7 @@ var pizzaElementGenerator = function(i) {
   pizzaContainer.appendChild(pizzaImageContainer);
 
 
-  pizzaDescriptionContainer.classList.add("PizzaIngre");
+  pizzaDescriptionContainer.classList.add("pizzaIngre");
 
   pizzaName = document.createElement("h4");
   pizzaName.innerHTML = randomName();
@@ -463,8 +464,8 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
+var pizzasDiv = document.getElementById("randomPizzas");
 for (var i = 2; i < 100; i++) {
-  var pizzasDiv = document.getElementById("randomPizzas");
   pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 
@@ -485,7 +486,7 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
   for (var i = numberOfEntries - 1; i > numberOfEntries - 11; i--) {
     sum = sum + times[i].duration;
   }
-  console.log("Average scripting time to generate last 10 frames: " + sum / 10 + "ms" + times.length);
+  console.log("Average scripting time to generate last 10 frames: " + sum / 10 + "ms");
 }
 
 // The following code for sliding background pizzas was pulled from Ilya's demo found at:
@@ -495,15 +496,10 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
-  // since the constant part of phase doenst change calculating this once.
-  if (frame != 1){
-    gotFrame = 0;
-  }
-  var phase = [];
-  for (var j=0;j<5;j++){
-    phase[j] = Math.sin( scrollTop+ (j % 5))*100;
-  }
 
+  gotFrame = 0;
+
+  // iterating over all moving items and applying a translateX to the position of the pizza
   var total_moving_items = movingItems.length;
   for (var i = 0; i < total_moving_items; i++) {
     var x_move = movingPizza[i][0] + phase[i%5] + 'px';
@@ -521,11 +517,22 @@ function updatePositions() {
 }
 
 function scrollHandler(){
-    scrollTop = document.body.scrollTop/1250;
+    updateScrollTop();
     if (!gotFrame){
       requestAnimationFrame(updatePositions);
     }
     gotFrame = 1;
+}
+
+// function to update scrolltop whenever udpateposition can be called
+// also updates the phase since only 5 phases can be calculated for a given scrolltop value
+function updateScrollTop(){
+  if (!gotFrame){
+    scrollTop = document.body.scrollTop/1250;
+    for (var j=0;j<5;j++){
+      phase[j] = Math.sin( scrollTop+ (j % 5))*100;
+    }
+  }
 }
 
 // runs updatePositions on scroll
@@ -536,11 +543,11 @@ document.addEventListener('DOMContentLoaded', function() {
   var cols = 8;
   var s = 256;
   var screenheight = screen.height;
-  scrollTop = document.body.scrollTop/1250;
+  updateScrollTop();
   for (var i = 0; i < 200; i++) {
     movingPizza[i] = [(i % cols) * s,Math.floor(i / cols) * s];
+    // stop adding pizzas to the dom if the y postiion of the pizza is more than the screen height
     if (movingPizza[i][1] > screenheight){
-      console.log("breaking at",movingPizza[i][1],screenheight);
       break;
     }
     var elem = document.createElement('img');
