@@ -8,48 +8,45 @@ To get started, check out the repository and inspect the code.
 
 #### Part 1: Optimize PageSpeed Insights score for index.html
 
-Some useful tips to help you get started:
+ * Original code is present in src directory
+ * Optimized code is present in the main directory itself
+ * Used grunt to automate the process of minifying the files as well as compressing the images.
+ * Here are the command for downloading the modules used.
+   * npm install grunt-contrib-imagemin --save-dev 
+   * npm install grunt-responsive-images --save-dev
+   * npm install grunt-contrib-htmlmin --save-dev
+   * npm install grunt-contrib-cssmin --save-dev
+   * npm install grunt-contrib-uglify --save-dev
 
-1. Check out the repository
-1. To inspect the site on your phone, you can run a local server
+##### Page Speed:
 
-  ```bash
-  $> cd /path/to/your-project-folder
-  $> python -m SimpleHTTPServer 8080
-  ```
+* Mobile:93
+* Desktop:95
 
-1. Open a browser and visit localhost:8080
-1. Download and install [ngrok](https://ngrok.com/) to the top-level of your project directory to make your local server accessible remotely.
+##### Optimizations:
 
-  ``` bash
-  $> cd /path/to/your-project-folder
-  $> ./ngrok http 8080
-  ```
-
-1. Copy the public URL ngrok gives you and try running it through PageSpeed Insights! Optional: [More on integrating ngrok, Grunt and PageSpeed.](http://www.jamescryer.com/2014/06/12/grunt-pagespeed-and-ngrok-locally-testing/)
-
-Profile, optimize, measure... and then lather, rinse, and repeat. Good luck!
+* Added async tag to script tag for javascripts
+* Compressed all images
+* Minified CSS/JS/HTML
+* Inlined minified CSS to index.html
+* Added media "print" to print.css
+* Used fontface in CSS to get open sans google font and remove link to google fonts in html
 
 #### Part 2: Optimize Frames per Second in pizza.html
 
-To optimize views/pizza.html, you will need to modify views/js/main.js until your frames per second rate is 60 fps or higher. You will find instructive comments in main.js. 
+##### Pizza Times:
 
-You might find the FPS Counter/HUD Display useful in Chrome developer tools described here: [Chrome Dev Tools tips-and-tricks](https://developer.chrome.com/devtools/docs/tips-and-tricks).
+* Time to resize Pizza = 0.5 ms average
+* Average Scripting time to generate last 10 frames < 0.2 ms average
 
-### Optimization Tips and Tricks
-* [Optimizing Performance](https://developers.google.com/web/fundamentals/performance/ "web performance")
-* [Analyzing the Critical Rendering Path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/analyzing-crp.html "analyzing crp")
-* [Optimizing the Critical Rendering Path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/optimizing-critical-rendering-path.html "optimize the crp!")
-* [Avoiding Rendering Blocking CSS](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/render-blocking-css.html "render blocking css")
-* [Optimizing JavaScript](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript.html "javascript")
-* [Measuring with Navigation Timing](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/measure-crp.html "nav timing api"). We didn't cover the Navigation Timing API in the first two lessons but it's an incredibly useful tool for automated page profiling. I highly recommend reading.
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/eliminate-downloads.html">The fewer the downloads, the better</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/optimize-encoding-and-transfer.html">Reduce the size of text</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization.html">Optimize images</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching.html">HTTP caching</a>
+##### Optimizations:
 
-### Customization with Bootstrap
-The portfolio was built on Twitter's <a href="http://getbootstrap.com/">Bootstrap</a> framework. All custom styles are in `dist/css/portfolio.css` in the portfolio repo.
-
-* <a href="http://getbootstrap.com/css/">Bootstrap's CSS Classes</a>
-* <a href="http://getbootstrap.com/components/">Bootstrap's Components</a>
+* Saved document.body.scrollTop in global variable once when DOMContentLoaded event and whenever scroll event is received
+* Saved all the moving pizza DOM in another global variable since the list does not change once added to DOM
+* Added condition to add moving Pizzas to DOM based on the screen height of the device. This way we dont have to iterate over 200 pizzas since they wont be seen on the screen
+* Call updatePosition on scroll using RequestAnimationFrame. To make sure RequestAnimationFrame doenst get called when the previous request is still being processed added a global flag which gets reset when updatePosition is executed.
+* Inside updatePosition , since phase can take only 5 different values based on the scroll position, calculating that separately
+* Move the pizzas based on transform instead of left since that has a better performance.
+* Updated the changePizzaSize function to change the size based on % which is returned by switch case inside the function. This value is then applied to the width of each Pizza.
+* Used getElementsByClassName/Id whereever applicable since that has better performance than querySelectorAll
+* Added will-change for all moving pizzas on transform so that they get promoted to their own layer
